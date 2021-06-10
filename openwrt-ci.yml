@@ -1,55 +1,55 @@
 #
-# 这是免费软件，许可使用 MIT。
+# This is free software, lisence use MIT.
 # 
-# 版权所有 (C) 2020 KFERMercer <KFER.Mercer@gmail.com>
+# Copyright (C) 2020 KFERMercer <KFER.Mercer@gmail.com>
 # 
 # <https://github.com/KFERMercer/OpenWrt-CI>
 #
 
-名称： 合并上游
+name: Merge-upstream
 
-上：
-  推：
-    分支机构： 
-      - 掌握
-  日程：
-    - 定时任务：30 19 * * *
+on:
+  push:
+    branches: 
+      - master
+  schedule:
+    - cron: 30 19 * * *
 
-职位：
+jobs:
 
-  合并：
+  merge:
 
-    运行： ubuntu-latest
+    runs-on: ubuntu-latest
 
-    脚步：
+    steps:
 
-    - 名称：结帐
-      用途：actions/checkout@v2
-      和：
-        参考：大师
-        取深度：0
-        lfs: 真的
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        ref: master
+        fetch-depth: 0
+        lfs: true
 
-    - 名称：设置 git 身份
-      运行： |
+    - name: Set git identity
+      run : |
         git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
         git config --global user.name "github-actions[bot]"
 
-    - 名称：加载上游提交
-      运行： git pull https://github.com/coolsnowwolf/lede.git --log --no-commit
+    - name: Load upstream commits
+      run: git pull https://github.com/coolsnowwolf/lede.git --log --no-commit
 
-    - 名称：应用提交更改
-      运行： |
-        如果 [ -f ./.git/MERGE_MSG ]; 然后
+    - name: Apply commit changes
+      run: |
+        if [ -f ./.git/MERGE_MSG ]; then
         mkdir ./tmp && cp ./.git/MERGE_MSG ./tmp/message
-        sed -i "1c [bot] AutoMerging: 合并所有上游的更改：" ./tmp/message
+        sed -i "1c [bot] AutoMerging: merge all upstream's changes:" ./tmp/message
         sed -i '/^\#.*/d' ./tmp/message
         git commit --file="./tmp/message"
-        别的
-        echo "没有合并提交。"
-        菲
+        else
+        echo "There is no merge commits."
+        fi
 
-    - 名称：推送提交
-      环境：
-        DOWNSTREAM_BRANCH：主
-      运行： git push origin $DOWNSTREAM_BRANCH
+    - name: Push Commits
+      env:
+        DOWNSTREAM_BRANCH: master
+      run: git push origin $DOWNSTREAM_BRANCH
